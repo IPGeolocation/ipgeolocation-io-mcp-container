@@ -15,8 +15,10 @@ docker run --rm -i --env IPGEOLOCATION_API_KEY ghcr.io/ipgeolocation/ipgeolocati
 ToolHive can run the same image:
 
 ```bash
-thv run ghcr.io/ipgeolocation/ipgeolocation-io-mcp:2.0.1
+thv run --env NODE_USE_ENV_PROXY=1 ghcr.io/ipgeolocation/ipgeolocation-io-mcp:2.0.1
 ```
+
+The proxy setting lets Node.js use ToolHive’s isolated network. The catalog entry supplies it by default.
 
 Use ToolHive’s secret provider to supply `IPGEOLOCATION_API_KEY` for authenticated lookups. `get_my_ip` works without a key or credits. Cached-result retrieval reads the running server’s memory and uses the original lookup’s key. Available data depends on your IPGeolocation.io plan.
 
