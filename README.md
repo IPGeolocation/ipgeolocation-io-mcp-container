@@ -22,7 +22,7 @@ The proxy setting lets Node.js use ToolHive’s isolated network.
 
 Use ToolHive’s secret provider to supply `IPGEOLOCATION_API_KEY` for authenticated lookups. `get_my_ip` works without a key or credits. Cached-result retrieval reads the running server’s memory and uses the original lookup’s key. Available data depends on your IPGeolocation.io plan.
 
-The container runs as an unprivileged user over stdio. Its runtime contains no shell or package manager. It needs outbound HTTPS to `api.ipgeolocation.io` for API lookups and requires no host-directory mounts. It contains no API key. See the [server documentation](https://github.com/IPGeolocation/ipgeolocation-io-mcp#readme) for tool inputs and client setup.
+The container runs as an unprivileged user over stdio. Its runtime contains no shell; npm, Yarn and apk are removed. Node's bundled Corepack helper remains. It needs outbound HTTPS to `api.ipgeolocation.io` for API lookups and requires no host-directory mounts. It contains no API key. See the [server documentation](https://github.com/IPGeolocation/ipgeolocation-io-mcp#readme) for tool inputs and client setup.
 
 [Security policy](https://github.com/IPGeolocation/ipgeolocation-io-mcp/blob/main/SECURITY.md) · [Privacy policy](https://ipgeolocation.io/privacy.html) · [Support](mailto:support@ipgeolocation.io)
 
