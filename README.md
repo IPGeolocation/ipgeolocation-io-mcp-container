@@ -18,7 +18,7 @@ ToolHive can run the same image:
 thv run --env NODE_USE_ENV_PROXY=1 ghcr.io/ipgeolocation/ipgeolocation-io-mcp:2.0.2
 ```
 
-The proxy setting lets Node.js use ToolHive’s isolated network. The catalog entry supplies it by default.
+The proxy setting lets Node.js use ToolHive’s isolated network.
 
 Use ToolHive’s secret provider to supply `IPGEOLOCATION_API_KEY` for authenticated lookups. `get_my_ip` works without a key or credits. Cached-result retrieval reads the running server’s memory and uses the original lookup’s key. Available data depends on your IPGeolocation.io plan.
 
