@@ -2,7 +2,7 @@
 
 The official IPGeolocation.io MCP server provides 17 tools for accurate IP geolocation, company information, ASN and network data, IP security (VPN, proxy, Tor, bot, hosting and spam detection), abuse contacts, time zones, astronomy, currency data and user-agent parsing.
 
-This repository packages the [2.0.2 release](https://github.com/IPGeolocation/ipgeolocation-io-mcp/releases/tag/v2.0.2) for Linux amd64 and arm64. The manual workflow tests and builds the release source from commit `ef306684ba8e19d5c2acbbf1be53885171e48d67` with Node.js 24.22.1 on a pinned Alpine 3.24 base. It removes BusyBox and package installers from the runtime while retaining UID 65532, stdio startup and HTTPS support. Native amd64 and arm64 checks run before publication. It scans both architectures, publishes an SBOM and build provenance, and signs the image digest. It refuses to overwrite the 2.0.2 container tag.
+This repository packages the [2.0.2 release](https://github.com/IPGeolocation/ipgeolocation-io-mcp/releases/tag/v2.0.2) for Linux amd64 and arm64. The manual workflow tests and builds the release source from commit `7cabc5016a500b617217aa7af11b29cc19d6c643` with Node.js 24.22.1 on a pinned Alpine 3.24 base. It removes BusyBox and package installers from the runtime while retaining UID 65532, stdio startup and HTTPS support. Native amd64 and arm64 checks run before publication. It scans both architectures, publishes an SBOM and build provenance, and signs the image digest. It refuses to overwrite the 2.0.2 container tag.
 
 ## Run the container
 

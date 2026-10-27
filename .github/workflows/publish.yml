@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: IPGeolocation/ipgeolocation-io-mcp
-          ref: ef306684ba8e19d5c2acbbf1be53885171e48d67
+          ref: 7cabc5016a500b617217aa7af11b29cc19d6c643
           path: server
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
@@ -97,7 +97,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: IPGeolocation/ipgeolocation-io-mcp
-          ref: ef306684ba8e19d5c2acbbf1be53885171e48d67
+          ref: 7cabc5016a500b617217aa7af11b29cc19d6c643
           path: server
           persist-credentials: false
 
@@ -165,7 +165,7 @@ jobs:
             org.opencontainers.image.title=IPGeolocation.io MCP Server
             org.opencontainers.image.description=Official IPGeolocation.io MCP container with 17 tools for accurate IP geolocation, company information, ASN/network data, IP security (VPN, proxy, Tor, bot, hosting and spam detection), abuse contacts, time zones, astronomy, currency data and user-agent parsing.
             org.opencontainers.image.version=2.0.2
-            org.opencontainers.image.revision=ef306684ba8e19d5c2acbbf1be53885171e48d67
+            org.opencontainers.image.revision=7cabc5016a500b617217aa7af11b29cc19d6c643
             org.opencontainers.image.source=https://github.com/IPGeolocation/ipgeolocation-io-mcp-container
             org.opencontainers.image.documentation=https://github.com/IPGeolocation/ipgeolocation-io-mcp#readme
             org.opencontainers.image.licenses=MIT
