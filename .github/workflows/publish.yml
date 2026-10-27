@@ -1,20 +1,90 @@
-name: Publish 2.0.1 container
+name: Publish 2.0.2 container
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main, release/2.0.2]
 
 concurrency:
-  group: publish-2.0.1
+  group: publish-2.0.2
   cancel-in-progress: false
 
 permissions:
   contents: read
-  packages: write
-  id-token: write
-  attestations: write
 
 jobs:
+  verify:
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+    steps:
+      - name: Check out container packaging
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Check out released server source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: IPGeolocation/ipgeolocation-io-mcp
+          ref: ef306684ba8e19d5c2acbbf1be53885171e48d67
+          path: server
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "24.22.1"
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - name: Install protocol test dependencies
+        working-directory: server
+        run: npm ci --ignore-scripts
+      - name: Build and test native container
+        run: docker build --pull --file Dockerfile --tag ipgeolocation-io-mcp:release-test ./server
+      - name: Verify non-root, shell-free runtime
+        run: |
+          docker run --rm --network none --entrypoint node ipgeolocation-io-mcp:release-test -e '
+            const assert = require("node:assert/strict");
+            const fs = require("node:fs");
+            assert.equal(process.getuid(), 65532);
+            assert.equal(require("./package.json").version, "2.0.2");
+            for (const path of ["/bin/sh", "/bin/busybox", "/sbin/apk", "/usr/local/bin/npm", "/usr/local/bin/npx", "/usr/local/bin/yarn"]) {
+              assert.equal(fs.existsSync(path), false, path);
+            }
+          '
+      - name: Verify read-only stdio and real HTTPS
+        working-directory: server
+        env:
+          MCP_DOCKER_IMAGE: ipgeolocation-io-mcp:release-test
+          MCP_DOCKER_UID: '65532'
+        run: node --test tests/docker.smoke.mjs
+      - name: Scan complete runtime image
+        uses: anchore/scan-action@27805bf3b4e84b4a5c980df22ed233c00390a439
+        with:
+          image: ipgeolocation-io-mcp:release-test
+          grype-version: v0.121.0
+          severity-cutoff: high
+          fail-build: true
+          only-fixed: false
+          output-format: json
+          output-file: runtime-vulnerabilities.json
+      - name: Retain runtime vulnerability report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: runtime-vulnerabilities-${{ matrix.runner }}
+          path: runtime-vulnerabilities.json
+          if-no-files-found: error
+
   publish:
+    needs: verify
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -27,9 +97,18 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: IPGeolocation/ipgeolocation-io-mcp
-          ref: 39b10fb3d537c6189f2c21eaef35efe589f25ccd
+          ref: ef306684ba8e19d5c2acbbf1be53885171e48d67
           path: server
           persist-credentials: false
+
+      - name: Verify the published release source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v2.0.2 --repo IPGeolocation/ipgeolocation-io-mcp
+          git -C server fetch origin tag v2.0.2 --depth=1
+          test "$(git -C server rev-parse HEAD)" = "$(git -C server rev-parse 'v2.0.2^{commit}')"
+          node -e 'require("node:assert/strict").equal(require("./server/package.json").version, "2.0.2")'
 
       - name: Check that the version tag is unused
         env:
@@ -47,8 +126,8 @@ jobs:
                       break
                   raise
               versions = json.load(response)
-              if any('2.0.1' in version.get('metadata', {}).get('container', {}).get('tags', []) for version in versions):
-                  raise SystemExit('Container tag 2.0.1 already exists. Refusing to overwrite it.')
+              if any('2.0.2' in version.get('metadata', {}).get('container', {}).get('tags', []) for version in versions):
+                  raise SystemExit('Container tag 2.0.2 already exists. Refusing to overwrite it.')
               links = response.headers.get('Link', '').split(',')
               url = next((link.split(';')[0].strip()[1:-1] for link in links if 'rel="next"' in link), None)
           PYTHON
@@ -79,14 +158,14 @@ jobs:
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/ipgeolocation/ipgeolocation-io-mcp:2.0.1
+          tags: ghcr.io/ipgeolocation/ipgeolocation-io-mcp:2.0.2
           provenance: mode=max
           sbom: true
           labels: |
             org.opencontainers.image.title=IPGeolocation.io MCP Server
             org.opencontainers.image.description=Official IPGeolocation.io MCP container with 17 tools for accurate IP geolocation, company information, ASN/network data, IP security (VPN, proxy, Tor, bot, hosting and spam detection), abuse contacts, time zones, astronomy, currency data and user-agent parsing.
-            org.opencontainers.image.version=2.0.1
-            org.opencontainers.image.revision=39b10fb3d537c6189f2c21eaef35efe589f25ccd
+            org.opencontainers.image.version=2.0.2
+            org.opencontainers.image.revision=ef306684ba8e19d5c2acbbf1be53885171e48d67
             org.opencontainers.image.source=https://github.com/IPGeolocation/ipgeolocation-io-mcp-container
             org.opencontainers.image.documentation=https://github.com/IPGeolocation/ipgeolocation-io-mcp#readme
             org.opencontainers.image.licenses=MIT
@@ -118,6 +197,24 @@ jobs:
           severity: HIGH,CRITICAL
           ignore-unfixed: false
           exit-code: '1'
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "24.22.1"
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Verify published images over stdio and HTTPS
+        working-directory: server
+        env:
+          MCP_DOCKER_IMAGE: ghcr.io/ipgeolocation/ipgeolocation-io-mcp@${{ steps.build.outputs.digest }}
+          MCP_DOCKER_UID: '65532'
+        run: |
+          npm ci --ignore-scripts
+          for platform in linux/amd64 linux/arm64; do
+            docker pull --platform "$platform" "$MCP_DOCKER_IMAGE"
+            DOCKER_DEFAULT_PLATFORM="$platform" node --test tests/docker.smoke.mjs
+          done
 
       - name: Attest build provenance
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
