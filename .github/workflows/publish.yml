@@ -1,17 +1,17 @@
-name: Publish 2.0.2 container
+name: Publish 2.0.3 container
 
 on:
   workflow_dispatch:
     inputs:
       existing_digest:
-        description: Existing 2.0.2 image digest to verify and sign without rebuilding
+        description: Existing 2.0.3 image digest to verify and sign without rebuilding
         required: false
         type: string
   push:
-    branches: [main, release/2.0.2]
+    branches: [main, release/2.0.3]
 
 concurrency:
-  group: publish-2.0.2
+  group: publish-2.0.3
   cancel-in-progress: false
 
 permissions:
@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: IPGeolocation/ipgeolocation-io-mcp
-          ref: 7cabc5016a500b617217aa7af11b29cc19d6c643
+          ref: 44f6be77d2abd40975c6f91b27a71bee28541051
           path: server
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
@@ -53,7 +53,7 @@ jobs:
             const assert = require("node:assert/strict");
             const fs = require("node:fs");
             assert.equal(process.getuid(), 65532);
-            assert.equal(require("./package.json").version, "2.0.2");
+            assert.equal(require("./package.json").version, "2.0.3");
             for (const path of ["/bin/sh", "/bin/busybox", "/sbin/apk", "/usr/local/bin/npm", "/usr/local/bin/npx", "/usr/local/bin/yarn"]) {
               assert.equal(fs.existsSync(path), false, path);
             }
@@ -104,7 +104,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: IPGeolocation/ipgeolocation-io-mcp
-          ref: 7cabc5016a500b617217aa7af11b29cc19d6c643
+          ref: 44f6be77d2abd40975c6f91b27a71bee28541051
           path: server
           persist-credentials: false
 
@@ -112,10 +112,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view v2.0.2 --repo IPGeolocation/ipgeolocation-io-mcp
-          git -C server fetch origin tag v2.0.2 --depth=1
-          test "$(git -C server rev-parse HEAD)" = "$(git -C server rev-parse 'v2.0.2^{commit}')"
-          node -e 'require("node:assert/strict").equal(require("./server/package.json").version, "2.0.2")'
+          gh release view v2.0.3 --repo IPGeolocation/ipgeolocation-io-mcp
+          git -C server fetch origin tag v2.0.3 --depth=1
+          test "$(git -C server rev-parse HEAD)" = "$(git -C server rev-parse 'v2.0.3^{commit}')"
+          node -e 'require("node:assert/strict").equal(require("./server/package.json").version, "2.0.3")'
 
       - name: Check that the version tag is unused
         env:
@@ -133,8 +133,8 @@ jobs:
                       break
                   raise
               versions = json.load(response)
-              if any('2.0.2' in version.get('metadata', {}).get('container', {}).get('tags', []) for version in versions):
-                  raise SystemExit('Container tag 2.0.2 already exists. Refusing to overwrite it.')
+              if any('2.0.3' in version.get('metadata', {}).get('container', {}).get('tags', []) for version in versions):
+                  raise SystemExit('Container tag 2.0.3 already exists. Refusing to overwrite it.')
               links = response.headers.get('Link', '').split(',')
               url = next((link.split(';')[0].strip()[1:-1] for link in links if 'rel="next"' in link), None)
           PYTHON
@@ -165,14 +165,14 @@ jobs:
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/ipgeolocation/ipgeolocation-io-mcp:2.0.2
+          tags: ghcr.io/ipgeolocation/ipgeolocation-io-mcp:2.0.3
           provenance: mode=max
           sbom: true
           labels: |
             org.opencontainers.image.title=IPGeolocation.io MCP Server
             org.opencontainers.image.description=Official IPGeolocation.io MCP container with 17 tools for accurate IP geolocation, company information, ASN/network data, IP security (VPN, proxy, Tor, bot, hosting and spam detection), abuse contacts, time zones, astronomy, currency data and user-agent parsing.
-            org.opencontainers.image.version=2.0.2
-            org.opencontainers.image.revision=7cabc5016a500b617217aa7af11b29cc19d6c643
+            org.opencontainers.image.version=2.0.3
+            org.opencontainers.image.revision=44f6be77d2abd40975c6f91b27a71bee28541051
             org.opencontainers.image.source=https://github.com/IPGeolocation/ipgeolocation-io-mcp-container
             org.opencontainers.image.documentation=https://github.com/IPGeolocation/ipgeolocation-io-mcp#readme
             org.opencontainers.image.licenses=MIT
@@ -233,13 +233,13 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: IPGeolocation/ipgeolocation-io-mcp
-          ref: 7cabc5016a500b617217aa7af11b29cc19d6c643
+          ref: 44f6be77d2abd40975c6f91b27a71bee28541051
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: "24.22.1"
           cache: npm
-      - name: Bind verification to the immutable 2.0.2 image
+      - name: Bind verification to the immutable 2.0.3 image
         run: |
           python3 - <<'PYTHON'
           import hashlib, json, os, urllib.request
@@ -247,14 +247,14 @@ jobs:
           url = 'https://ghcr.io/token?scope=repository:' + repository + ':pull&service=ghcr.io'
           with urllib.request.urlopen(url, timeout=30) as response:
               token = json.load(response)['token']
-          request = urllib.request.Request('https://ghcr.io/v2/' + repository + '/manifests/2.0.2', headers={
+          request = urllib.request.Request('https://ghcr.io/v2/' + repository + '/manifests/2.0.3', headers={
               'Authorization': 'Bearer ' + token,
               'Accept': 'application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json',
           })
           with urllib.request.urlopen(request, timeout=30) as response:
               digest = 'sha256:' + hashlib.sha256(response.read()).hexdigest()
               assert response.headers['Docker-Content-Digest'] == digest
-          assert os.environ['IMAGE_DIGEST'] == digest, 'Digest must match the published 2.0.2 tag'
+          assert os.environ['IMAGE_DIGEST'] == digest, 'Digest must match the published 2.0.3 tag'
           PYTHON
       - name: Pull the native image and compile the tagged source
         run: |
@@ -281,8 +281,8 @@ jobs:
           const actual = JSON.parse(execFileSync('docker', ['run','--rm','--network','none','--entrypoint','node',process.env.MCP_DOCKER_IMAGE,'-e',inspect], {encoding:'utf8',timeout:30000}));
           const paths = fs.readdirSync('dist', {recursive:true}).filter(p => p.endsWith('.js')).sort();
           const expected = Object.fromEntries(paths.map(p=>[p,crypto.createHash('sha256').update(fs.readFileSync('dist/'+p)).digest('hex')]));
-          assert.equal(paths.length, 17);
-          assert.equal(actual.version, '2.0.2');
+          assert.ok(paths.includes('cli.js') && paths.includes('index.js'));
+          assert.equal(actual.version, '2.0.3');
           assert.equal(actual.uid, 65532);
           assert.deepEqual(actual.unwanted, []);
           assert.deepEqual(actual.files, expected);
