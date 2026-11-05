@@ -1,4 +1,7 @@
-FROM node:24.22.1-alpine3.24@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53 AS build
+FROM node:24.22.1-alpine3.24@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53 AS target-base
+
+# Compile and test on the builder CPU when packaging more than one architecture.
+FROM --platform=$BUILDPLATFORM node:24.22.1-alpine3.24@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53 AS build
 
 WORKDIR /app
 COPY package.json package-lock.json tsconfig.json ./
@@ -6,9 +9,13 @@ RUN npm ci --ignore-scripts
 RUN apk add --no-cache bash unzip
 COPY . .
 RUN --network=none npm test
+
+FROM target-base AS dependencies
+WORKDIR /app
+COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts
 
-FROM node:24.22.1-alpine3.24@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53 AS runtime
+FROM target-base AS runtime
 
 WORKDIR /app
 ENV NODE_ENV=production
@@ -31,7 +38,7 @@ RUN sed -i 's/^node:x:1000:1000:/node:x:65532:65532:/' /etc/passwd \
         fs.mkdirSync('/opt', { recursive: true }); \
         for (const dir of ['/tmp', '/var/tmp']) { fs.mkdirSync(dir, { recursive: true }); fs.chmodSync(dir, 0o1777); }"
 COPY --from=build /app/package.json /app/package-lock.json ./
-COPY --from=build /app/node_modules ./node_modules
+COPY --from=dependencies /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY manifest.json server.json LICENSE README.md CHANGELOG.md SECURITY.md CONTRIBUTING.md RELEASING.md REFERENCE.md ./
 COPY packaging/mpak/README.md ./packaging/mpak/README.md
