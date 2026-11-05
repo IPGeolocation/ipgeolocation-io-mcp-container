@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: IPGeolocation/ipgeolocation-io-mcp
-          ref: 44f6be77d2abd40975c6f91b27a71bee28541051
+          ref: fce963047a120db33b5fdcb37fd3e50e1eea1f42
           path: server
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
@@ -104,7 +104,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: IPGeolocation/ipgeolocation-io-mcp
-          ref: 44f6be77d2abd40975c6f91b27a71bee28541051
+          ref: fce963047a120db33b5fdcb37fd3e50e1eea1f42
           path: server
           persist-credentials: false
 
@@ -172,7 +172,7 @@ jobs:
             org.opencontainers.image.title=IPGeolocation.io MCP Server
             org.opencontainers.image.description=Official IPGeolocation.io MCP container with 17 tools for accurate IP geolocation, company information, ASN/network data, IP security (VPN, proxy, Tor, bot, hosting and spam detection), abuse contacts, time zones, astronomy, currency data and user-agent parsing.
             org.opencontainers.image.version=2.0.3
-            org.opencontainers.image.revision=44f6be77d2abd40975c6f91b27a71bee28541051
+            org.opencontainers.image.revision=fce963047a120db33b5fdcb37fd3e50e1eea1f42
             org.opencontainers.image.source=https://github.com/IPGeolocation/ipgeolocation-io-mcp-container
             org.opencontainers.image.documentation=https://github.com/IPGeolocation/ipgeolocation-io-mcp#readme
             org.opencontainers.image.licenses=MIT
@@ -233,7 +233,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: IPGeolocation/ipgeolocation-io-mcp
-          ref: 44f6be77d2abd40975c6f91b27a71bee28541051
+          ref: fce963047a120db33b5fdcb37fd3e50e1eea1f42
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
